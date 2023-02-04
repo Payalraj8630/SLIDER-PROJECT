@@ -1,20 +1,57 @@
 import { useState } from "react"
-import {  Col, Container, Row } from "react-bootstrap"
+import {  Button, Col, Container, Row } from "react-bootstrap"
 import Navbar from "../Components/Navbar"
-import {BsFillPencilFill,BsFillTrashFill, BsJustify} from "react-icons/bs"
+import {FaPenSquare,FaTrash} from "react-icons/fa"
+import "./Grocer.css"
+
+
+const getLocalstorage =() =>{
+    const list =localStorage.grtItem("list")
+    if (list) {}
+}
 
 function Grocer(){
  const[inputValue,setInputvalue] =useState("")
  const[list,setList]=useState([]) as any
+ const[isEditing,setIsEditing] =useState(false)
+ const[editId,setEditId] =useState(0)
+ console.log({editId, isEditing})
+
 
     const handleSubmit =(e:any) => {
         e.preventDefault()
-        const newItem={
-           id: new Date().getTime().toString(),
-            title:inputValue
+       if(editId && isEditing) {
+        setList(
+            list.map((item:any) => {
+                if (item.id ===editId){
+                    return{...item,title:inputValue}
+                }
+                return item
+            })
+        )
+        setIsEditing(false)
+        setEditId(0)
+       } else{ const newItem ={
+        id: new Date().getTime().toString(),
+         title:inputValue
+        
+       }
+
+       setList([...list,newItem]) 
+       setInputvalue("") 
         }
-           setList([...list,newItem]) 
-           setInputvalue("") 
+
+    }
+
+    const removeItem =(id:number) => {
+        setList(list.filter((item:any) =>item.id !==id ))
+    }
+
+    const editItem =(id:number) => {
+        const foundItem =list.find((item:any)=> item.id ===id)
+        setInputvalue(foundItem.title)
+        setEditId(id)
+        setIsEditing(true)
     }
     
     return(
@@ -41,15 +78,23 @@ function Grocer(){
                  >
                 
                     <p>{title}</p>
-             <p>
-                <BsFillPencilFill/>
+             <p 
+             onClick={() => editItem(id)}
+             className="edit-icon">
+                <FaPenSquare/>
              </p>
-              <p>
-                <BsFillTrashFill/>
+              <p 
+              onClick={() => removeItem(id)}
+              className="delete-icon">
+                <FaTrash/>
              </p>
              </div>
               })}
-              
+              <Button variant="danger"
+              onClick={() => {
+                setList([])
+              }}
+              >Clear all</Button>
               
                 </Col>
             </Row>
